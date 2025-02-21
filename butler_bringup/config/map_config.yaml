@@ -1,0 +1,8 @@
+image: /home/sac/projects/ros/butler_robot/src/butler_bringup/map/d.png
+mode: trinary
+resolution: 0.0026
+origin: [0, 0, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.25
+
