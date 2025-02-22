@@ -12,12 +12,25 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-add_executable(${PROJECT_NAME} "src/actions.cpp")
-ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp_action rclcpp_components nav2_msgs)
-target_link_libraries(${PROJECT_NAME} behaviortree_cpp)
+add_executable(leaf_nodes
+#  "src/actions.cpp"
+ "src/leaf_nodes.cpp")
+ament_target_dependencies(leaf_nodes rclcpp rclcpp_action rclcpp_components nav2_msgs tf2 tf2_ros)
+target_link_libraries(leaf_nodes behaviortree_cpp)
+
+
+install(
+  TARGETS leaf_nodes
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

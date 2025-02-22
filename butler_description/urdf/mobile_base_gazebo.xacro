@@ -4,6 +4,7 @@
  
     <gazebo>   
 
+
         <plugin filename="gz-sim-imu-system"
                 name="gz::sim::systems::Imu">
         </plugin>
@@ -13,11 +14,11 @@
             name="gz::sim::systems::DiffDrive">
             <left_joint>base_left_back_wheel_joint</left_joint>
             <right_joint>base_right_back_wheel_joint</right_joint>
-            <odom_publish_frequency>0.0</odom_publish_frequency>
+            <odom_publish_frequency>20.0</odom_publish_frequency>
             <child_frame_id>base_footprint</child_frame_id>
             <frame_id>odom</frame_id>
-            <wheel_separation>0.45</wheel_separation>
-            <wheel_radius>0.1</wheel_radius>
+            <wheel_separation>0.2139</wheel_separation>
+            <wheel_radius>0.0325</wheel_radius>
         </plugin>
 
         <plugin

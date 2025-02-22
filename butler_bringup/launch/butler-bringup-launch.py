@@ -24,7 +24,7 @@ def generate_launch_description():
     butler_launch = os.path.join(butler_description, 'launch', 'butler.launch.py')
     gz_launch = os.path.join(gazebo_description, 'launch', 'gz_sim.launch.py')
     # world = os.path.join(butler_brignup, 'empty.sdf')
-    world = "empty.sdf"
+    world = os.path.join(butler_brignup,"worlds","hotel.sdf")
     rviz2_config_path = os.path.join(butler_brignup,"config","butler_rviz.rviz")
 
     robot_controllers = os.path.join(get_package_share_path(description),'config','controller_config.yaml',)
