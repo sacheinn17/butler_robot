@@ -11,16 +11,17 @@ float positions[5][2] = {
 };
 
 std::vector<int> orders = {};
+std::vector<int> cancelled_orders = {};
 
 class SetNavGoal : public BT::ThreadedAction {
 public:
     using NavigateToPose = nav2_msgs::action::NavigateToPose;
     using GoalHandle = rclcpp_action::ClientGoalHandle<NavigateToPose>;
 
-    explicit SetNavGoal(const std::string& name, const BT::NodeConfig& config, rclcpp::Node::SharedPtr node)
-        : BT::ThreadedAction(name, config), node_(node) {
+    explicit SetNavGoal(const std::string& name, const BT::NodeConfig& config, rclcpp::Node::SharedPtr node) : BT::ThreadedAction(name, config), node_(node) {
         client_ = rclcpp_action::create_client<NavigateToPose>(node_, "navigate_to_pose");
         order_subscription = node_->create_subscription<std_msgs::msg::Int32>("orders", 10, std::bind(&SetNavGoal::order_callback, this, std::placeholders::_1));
+        order_cancel_subscription = node_->create_subscription<std_msgs::msg::Int32>("orders_cancelled", 10, std::bind(&SetNavGoal::order_cancel_callback, this, std::placeholders::_1));
     }
 
     static BT::PortsList providedPorts() {
@@ -65,6 +66,12 @@ public:
     void order_callback(const std_msgs::msg::Int32::SharedPtr msg) {
         orders.push_back(msg->data + 2);
     }
+
+    void order_cancel_callback(const std_msgs::msg::Int32::SharedPtr msg) {
+        if (orders[0] == msg->data+2) {
+            cancelled_orders.push_back(msg->data+2);
+        }
+    } 
 
 private:
     rclcpp::Node::SharedPtr node_;
@@ -119,6 +126,25 @@ BT::NodeStatus checkLocation(std::shared_ptr<rclcpp::Node>& node_,tf2_ros::Buffe
 }
 }
 
+BT::NodeStatus checkOrders(){
+    if (orders.size() < 0){
+        std::cout << "No orders available to cancel" << std::endl;
+        return BT::NodeStatus::FAILURE;
+    }
+    if (orders[0] == cancelled_orders[0]){
+        std::cout << "Order on table" << orders[0] <<" cancelled" << std::endl;
+
+        orders.erase(orders.begin());
+        cancelled_orders.erase(cancelled_orders.begin());
+
+        return BT::NodeStatus::SUCCESS;
+    }
+    else{
+        std::cout << "Current order is not getting executed" << std::endl;
+        return BT::NodeStatus::FAILURE;
+    }
+}
+
 BT::NodeStatus pendingOrders(){
     if (orders.size() > 0){
         std::cout << "Orders available" << std::endl;
@@ -142,6 +168,8 @@ int main(int argc, char** argv) {
     factory.registerSimpleCondition("pending_orders", std::bind(pendingOrders));
     factory.registerSimpleCondition("in_dock", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,0,0);});
     factory.registerSimpleCondition("on_kitchen", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,2.0,2.0);});
+    factory.registerSimpleCondition("order_cancelled", std::bind(checkOrders));
+
 
     auto tree = factory.createTreeFromFile("/home/sac/projects/ros/butler_robot/src/butler_behaviour/src/bt_tree_test.xml");
 
