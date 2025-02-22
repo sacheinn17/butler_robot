@@ -1,5 +1,17 @@
 #include "leaf_nodes.hpp"
 
+
+
+float positions[5][2] = {
+    {2.0,2.0}, //kitchen
+    {4.0,4.0}, //dock
+    {6.0,6.0}, //table 1
+    {8.0,8.0}, //table 2
+    {10.0,10.0} //table 3
+};
+
+std::vector<int> orders = {};
+
 class SetNavGoal : public BT::ThreadedAction {
 public:
     using NavigateToPose = nav2_msgs::action::NavigateToPose;
@@ -8,6 +20,7 @@ public:
     explicit SetNavGoal(const std::string& name, const BT::NodeConfig& config, rclcpp::Node::SharedPtr node)
         : BT::ThreadedAction(name, config), node_(node) {
         client_ = rclcpp_action::create_client<NavigateToPose>(node_, "navigate_to_pose");
+        order_subscription = node_->create_subscription<std_msgs::msg::Int32>("orders", 10, std::bind(&SetNavGoal::order_callback, this, std::placeholders::_1));
     }
 
     static BT::PortsList providedPorts() {
@@ -49,9 +62,15 @@ public:
         RCLCPP_WARN(node_->get_logger(), "Halting navigation goal");
     }
 
+    void order_callback(const std_msgs::msg::Int32::SharedPtr msg) {
+        orders.push_back(msg->data + 2);
+    }
+
 private:
     rclcpp::Node::SharedPtr node_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr order_subscription;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr order_cancel_subscription;
     std::shared_future<GoalHandle::SharedPtr> future_goal_handle_;
 
     void resultCallback(const GoalHandle::WrappedResult& result) {
@@ -65,12 +84,11 @@ private:
     geometry_msgs::msg::PoseStamped getGoalPose(int goal_number) {
         geometry_msgs::msg::PoseStamped pose;
         pose.header.frame_id = "map";
-        pose.pose.position.x = goal_number * 1.0 + 0.1;
-        pose.pose.position.y = goal_number * 1.0 + 0.1;
+        pose.pose.position.x = positions[goal_number][0];
+        pose.pose.position.y = positions[goal_number][1];
         return pose;
     }
 };
-
 
 BT::NodeStatus printVal(){
     std::cout << "Hello World!" << std::endl;
@@ -101,6 +119,14 @@ BT::NodeStatus checkLocation(std::shared_ptr<rclcpp::Node>& node_,tf2_ros::Buffe
 }
 }
 
+BT::NodeStatus pendingOrders(){
+    if (orders.size() > 0){
+        std::cout << "Orders available" << std::endl;
+        return BT::NodeStatus::SUCCESS;
+    }
+    std::cout << "No orders" << std::endl;
+    return BT::NodeStatus::FAILURE;
+}
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("bt_nav_goal");
@@ -113,6 +139,7 @@ int main(int argc, char** argv) {
     factory.registerNodeType<SetNavGoal>("go_to_table", node);
     factory.registerSimpleCondition("printVal", std::bind(printVal));
     factory.registerSimpleCondition("charge", std::bind(charge));
+    factory.registerSimpleCondition("pending_orders", std::bind(pendingOrders));
     factory.registerSimpleCondition("in_dock", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,0,0);});
     factory.registerSimpleCondition("on_kitchen", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,2.0,2.0);});
 
