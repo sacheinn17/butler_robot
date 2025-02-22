@@ -4,5 +4,21 @@
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
         <Action ID="MoveToActionPoint" editable="true"/>
+        <Action ID="add_to_waste" editable="true"/>
+        <Condition ID="charge" editable="true"/>
+        <Action ID="empty_waste" editable="true"/>
+        <Action ID="execute_order" editable="true"/>
+        <Condition ID="executing_orders" editable="true"/>
+        <Action ID="go_to_dock" editable="true"/>
+        <Action ID="go_to_kitchen" editable="true"/>
+        <Condition ID="in_dock" editable="true"/>
+        <Condition ID="on_kitchen" editable="true"/>
+        <Condition ID="on_table" editable="true"/>
+        <Condition ID="order_canceled" editable="true"/>
+        <Condition ID="order_confirmed" editable="true"/>
+        <Condition ID="pending_orders" editable="true"/>
+        <Action ID="pop_pending_orders" editable="true"/>
+        <Action ID="wait_for_time" editable="true"/>
+        <Condition ID="wasted_orders" editable="true"/>
     </TreeNodesModel>
 </root>
