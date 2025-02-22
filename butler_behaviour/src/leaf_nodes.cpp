@@ -12,6 +12,7 @@ float positions[5][2] = {
 
 std::vector<int> orders = {};
 std::vector<int> cancelled_orders = {};
+std::vector<int> executing_orders= {};
 
 class SetNavGoal : public BT::ThreadedAction {
 public:
@@ -145,6 +146,15 @@ BT::NodeStatus checkOrders(){
     }
 }
 
+BT::NodeStatus executingOrders(){
+    if (executing_orders.size() > 0){
+        std::cout << "Orders being executed" << std::endl;
+        return BT::NodeStatus::SUCCESS;
+    }
+    std::cout << "No orders being executed" << std::endl;
+    return BT::NodeStatus::FAILURE;
+}
+
 BT::NodeStatus pendingOrders(){
     if (orders.size() > 0){
         std::cout << "Orders available" << std::endl;
@@ -153,6 +163,7 @@ BT::NodeStatus pendingOrders(){
     std::cout << "No orders" << std::endl;
     return BT::NodeStatus::FAILURE;
 }
+
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("bt_nav_goal");
@@ -169,6 +180,7 @@ int main(int argc, char** argv) {
     factory.registerSimpleCondition("in_dock", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,0,0);});
     factory.registerSimpleCondition("on_kitchen", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,2.0,2.0);});
     factory.registerSimpleCondition("order_cancelled", std::bind(checkOrders));
+    factory.registerSimpleCondition("executing_orders", std::bind(executingOrders));
 
 
     auto tree = factory.createTreeFromFile("/home/sac/projects/ros/butler_robot/src/butler_behaviour/src/bt_tree_test.xml");
