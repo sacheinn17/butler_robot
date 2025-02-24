@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="Untitled">
+  <BehaviorTree ID="buter">
     <ReactiveSequence>
       <ReactiveFallback>
         <charge/>
         <in_dock/>
-        <go_to_dock/>
+        <go_to_dock goal_number="1"/>
       </ReactiveFallback>
       <ReactiveFallback>
         <ReactiveSequence>
           <executing_orders/>
           <ReactiveSequence>
             <ReactiveFallback>
-              <order_canceled/>
+              <order_cancelled/>
               <ReactiveSequence>
                 <ReactiveFallback>
                   <on_table/>
                   <execute_order/>
                 </ReactiveFallback>
                 <ReactiveFallback>
-                  <order_confirmed/>
-                  <wait_for_time/>
+                  <Timeout msec="3000">
+                    <order_confirmed/>
+                  </Timeout>
                   <add_to_waste/>
                 </ReactiveFallback>
                 <pop_pending_orders/>
@@ -30,15 +31,17 @@
           </ReactiveSequence>
         </ReactiveSequence>
         <on_kitchen/>
-        <go_to_kitchen/>
+        <go_to_kitchen goal_number="0"/>
       </ReactiveFallback>
       <ReactiveFallback>
         <ReactiveSequence>
           <on_kitchen/>
           <empty_waste/>
           <ReactiveFallback>
-            <wait_for_time/>
-            <go_to_dock/>
+            <Timeout msec="3000">
+              <take_orders/>
+            </Timeout>
+            <go_to_dock goal_number="1"/>
           </ReactiveFallback>
         </ReactiveSequence>
       </ReactiveFallback>
@@ -77,7 +80,7 @@
                editable="true"/>
     <Condition ID="on_table"
                editable="true"/>
-    <Condition ID="order_canceled"
+    <Condition ID="order_cancelled"
                editable="true"/>
     <Condition ID="order_confirmed"
                editable="true"/>
@@ -85,7 +88,7 @@
                editable="true"/>
     <Action ID="pop_pending_orders"
             editable="true"/>
-    <Action ID="wait_for_time"
+    <Action ID="take_orders"
             editable="true"/>
   </TreeNodesModel>
 

@@ -10,10 +10,10 @@ float positions[5][2] = {
     {10.0,10.0} //table 3
 };
 
-std::vector<int> orders = {};
+std::vector<int> orders = {2,3};
 std::vector<int> cancelled_orders = {};
 std::vector<int> executing_orders= {};
-
+std::vector<int> waste= {};
 class SetNavGoal : public BT::ThreadedAction {
 public:
     using NavigateToPose = nav2_msgs::action::NavigateToPose;
@@ -110,7 +110,8 @@ BT::NodeStatus charge(){
 
 BT::NodeStatus checkLocation(std::shared_ptr<rclcpp::Node>& node_,tf2_ros::Buffer& tf_buffer_,int x, int y){
     geometry_msgs::msg::TransformStamped transform;
-    
+    std::cout << "checking location " << std::endl;
+
     try{
     transform = tf_buffer_.lookupTransform("odom", "base_footprint", tf2::TimePointZero);
     if (transform.transform.translation.x < x+0.1 && transform.transform.translation.x > x-0.1 && transform.transform.translation.y < y+0.1 && transform.transform.translation.y > y-0.1){
@@ -128,6 +129,8 @@ BT::NodeStatus checkLocation(std::shared_ptr<rclcpp::Node>& node_,tf2_ros::Buffe
 }
 
 BT::NodeStatus checkOrders(){
+    std::cout << "Checking Available Orders!" << std::endl;
+
     if (orders.size() < 0){
         std::cout << "No orders available to cancel" << std::endl;
         return BT::NodeStatus::FAILURE;
@@ -147,6 +150,8 @@ BT::NodeStatus checkOrders(){
 }
 
 BT::NodeStatus executingOrders(){
+    std::cout << "Checking for current executing orders" << std::endl;
+
     if (executing_orders.size() > 0){
         std::cout << "Orders being executed" << std::endl;
         return BT::NodeStatus::SUCCESS;
@@ -155,7 +160,10 @@ BT::NodeStatus executingOrders(){
     return BT::NodeStatus::FAILURE;
 }
 
+
 BT::NodeStatus pendingOrders(){
+    std::cout << "Checking for any pending orders" << std::endl;
+
     if (orders.size() > 0){
         std::cout << "Orders available" << std::endl;
         return BT::NodeStatus::SUCCESS;
@@ -163,6 +171,37 @@ BT::NodeStatus pendingOrders(){
     std::cout << "No orders" << std::endl;
     return BT::NodeStatus::FAILURE;
 }
+
+BT::NodeStatus popPendingOrders(){
+    orders.erase(orders.end());
+    return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus executeOrder(){
+std::cout << "Executing orders" << std::endl;
+  return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus orderConfiremd(){
+std::cout << "Checking for order confirmation" << std::endl;
+    return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus addToWaste(){
+    waste.push_back(executing_orders[0]);
+    executing_orders.erase(executing_orders.begin());
+    return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus emptyWaste(){
+    waste.erase(waste.begin());
+    return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus takeOrders(){
+    return BT::NodeStatus::SUCCESS;
+}
+
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
@@ -174,14 +213,21 @@ int main(int argc, char** argv) {
     BT::BehaviorTreeFactory factory;
     factory.registerNodeType<SetNavGoal>("go_to_kitchen", node);
     factory.registerNodeType<SetNavGoal>("go_to_table", node);
+    factory.registerNodeType<SetNavGoal>("go_to_dock", node);
     factory.registerSimpleCondition("printVal", std::bind(printVal));
     factory.registerSimpleCondition("charge", std::bind(charge));
     factory.registerSimpleCondition("pending_orders", std::bind(pendingOrders));
     factory.registerSimpleCondition("in_dock", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,0,0);});
     factory.registerSimpleCondition("on_kitchen", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,2.0,2.0);});
     factory.registerSimpleCondition("order_cancelled", std::bind(checkOrders));
+    factory.registerSimpleCondition("on_table", [&node, &tf_buffer_](BT::TreeNode &tree_node) -> BT::NodeStatus {return checkLocation(node,tf_buffer_,positions[executing_orders[0]][0],positions[executing_orders[0]][1]);});
     factory.registerSimpleCondition("executing_orders", std::bind(executingOrders));
-
+    factory.registerSimpleCondition("order_confirmed", std::bind(orderConfiremd));
+    factory.registerSimpleAction("pop_pending_orders", std::bind(popPendingOrders));
+    factory.registerSimpleAction("execute_order", std::bind(executeOrder));
+    factory.registerSimpleAction("add_to_waste", std::bind(addToWaste));
+    factory.registerSimpleAction("empty_waste", std::bind(emptyWaste));
+    factory.registerSimpleAction("take_orders", std::bind(takeOrders));
 
     auto tree = factory.createTreeFromFile("/home/sac/projects/ros/butler_robot/src/butler_behaviour/src/bt_tree_test.xml");
 

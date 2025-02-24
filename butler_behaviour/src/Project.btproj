@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" project_name="Project">
+    <include path="../../../../../behaviours/bt_tree.xml"/>
     <include path="bt_tree.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
+        <Action ID="ApproachObject" editable="true"/>
+        <Action ID="CheckBattery" editable="true"/>
+        <Action ID="CloseGripper" editable="true"/>
         <Action ID="MoveToActionPoint" editable="true"/>
+        <Action ID="OpenGripper" editable="true"/>
         <Action ID="add_to_waste" editable="true"/>
         <Condition ID="charge" editable="true"/>
         <Action ID="empty_waste" editable="true"/>
@@ -16,8 +21,11 @@
         <Condition ID="on_table" editable="true"/>
         <Condition ID="order_canceled" editable="true"/>
         <Condition ID="order_confirmed" editable="true"/>
+        <Condition ID="orders_available" editable="true"/>
         <Condition ID="pending_orders" editable="true"/>
+        <Condition ID="pending_orders2" editable="true"/>
         <Action ID="pop_pending_orders" editable="true"/>
+        <Action ID="take_orders" editable="true"/>
         <Action ID="wait_for_time" editable="true"/>
         <Condition ID="wasted_orders" editable="true"/>
     </TreeNodesModel>
