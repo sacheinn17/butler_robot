@@ -108,13 +108,15 @@ BT::NodeStatus charge(){
     return BT::NodeStatus::SUCCESS;
 }
 
+
+
 BT::NodeStatus checkLocation(std::shared_ptr<rclcpp::Node>& node_,tf2_ros::Buffer& tf_buffer_,int x, int y){
     geometry_msgs::msg::TransformStamped transform;
     std::cout << "checking location " << std::endl;
 
     try{
     transform = tf_buffer_.lookupTransform("odom", "base_footprint", tf2::TimePointZero);
-    if (transform.transform.translation.x < x+0.1 && transform.transform.translation.x > x-0.1 && transform.transform.translation.y < y+0.1 && transform.transform.translation.y > y-0.1){
+    if (transform.transform.translation.x < x+0.5 && transform.transform.translation.x > x-0.5 || transform.transform.translation.y < y+0.5 && transform.transform.translation.y > y-0.5){
         std::cout << "In location" << std::endl;
         return BT::NodeStatus::SUCCESS;
     }
@@ -210,6 +212,7 @@ int main(int argc, char** argv) {
     tf2_ros::Buffer tf_buffer_{node->get_clock()};
     tf2_ros::TransformListener tf_listener_{tf_buffer_};
 
+
     BT::BehaviorTreeFactory factory;
     factory.registerNodeType<SetNavGoal>("go_to_kitchen", node);
     factory.registerNodeType<SetNavGoal>("go_to_table", node);
@@ -231,6 +234,7 @@ int main(int argc, char** argv) {
 
     auto tree = factory.createTreeFromFile("/home/sac/projects/ros/butler_robot/src/butler_behaviour/src/bt_tree_test.xml");
 
+    BT::Groot2Publisher publisher(tree);
     rclcpp::Rate rate(10);
     while (rclcpp::ok()) {
         tree.tickOnce();

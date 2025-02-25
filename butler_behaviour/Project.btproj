@@ -22,7 +22,7 @@
         <Condition ID="in_dock" editable="true"/>
         <Condition ID="on_kitchen" editable="true"/>
         <Condition ID="on_table" editable="true"/>
-        <Condition ID="order_cancelled" editable="true"/>
+        <Condition ID="order_canceled" editable="true"/>
         <Condition ID="order_confirmed" editable="true"/>
         <Condition ID="orders_available" editable="true"/>
         <Condition ID="pending_orders" editable="true"/>

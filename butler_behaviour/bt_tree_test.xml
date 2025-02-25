@@ -12,7 +12,7 @@
           <executing_orders/>
           <ReactiveSequence>
             <ReactiveFallback>
-              <order_cancelled/>
+              <order_canceled/>
               <ReactiveSequence>
                 <ReactiveFallback>
                   <on_table/>
@@ -86,7 +86,7 @@
                editable="true"/>
     <Condition ID="on_table"
                editable="true"/>
-    <Condition ID="order_cancelled"
+    <Condition ID="order_canceled"
                editable="true"/>
     <Condition ID="order_confirmed"
                editable="true"/>
