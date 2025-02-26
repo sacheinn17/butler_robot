@@ -33,26 +33,21 @@
         <on_kitchen/>
         <go_to_kitchen goal_number="0"/>
       </ReactiveFallback>
-      <ReactiveFallback>
-        <ReactiveSequence>
-          <on_kitchen/>
-          <empty_waste/>
-          <ReactiveFallback>
-            <Timeout msec="3000">
-              <take_orders/>
-            </Timeout>
-            <go_to_dock goal_number="1"/>
-          </ReactiveFallback>
-        </ReactiveSequence>
-      </ReactiveFallback>
       <ReactiveSequence>
         <pending_orders/>
         <ReactiveFallback>
           <on_kitchen/>
-          <Inverter>
-            <executing_orders/>
-          </Inverter>
           <go_to_kitchen goal_number="0"/>
+        </ReactiveFallback>
+      </ReactiveSequence>
+      <ReactiveSequence>
+        <on_kitchen/>
+        <empty_waste/>
+        <ReactiveFallback>
+          <Timeout msec="3000">
+            <take_orders/>
+          </Timeout>
+          <go_to_dock goal_number="1"/>
         </ReactiveFallback>
       </ReactiveSequence>
     </ReactiveSequence>

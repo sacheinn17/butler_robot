@@ -12,7 +12,7 @@
           <executing_orders/>
           <ReactiveSequence>
             <ReactiveFallback>
-              <order_canceled/>
+              <order_cancelled/>
               <ReactiveSequence>
                 <ReactiveFallback>
                   <on_table/>
@@ -33,26 +33,21 @@
         <on_kitchen/>
         <go_to_kitchen goal_number="0"/>
       </ReactiveFallback>
-      <ReactiveFallback>
-        <ReactiveSequence>
-          <on_kitchen/>
-          <empty_waste/>
-          <ReactiveFallback>
-            <Timeout msec="3000">
-              <take_orders/>
-            </Timeout>
-            <go_to_dock goal_number="1"/>
-          </ReactiveFallback>
-        </ReactiveSequence>
-      </ReactiveFallback>
       <ReactiveSequence>
         <pending_orders/>
         <ReactiveFallback>
           <on_kitchen/>
-          <Inverter>
-            <executing_orders/>
-          </Inverter>
           <go_to_kitchen goal_number="0"/>
+        </ReactiveFallback>
+      </ReactiveSequence>
+      <ReactiveSequence>
+        <on_kitchen/>
+        <empty_waste/>
+        <ReactiveFallback>
+          <Timeout msec="3000">
+            <take_orders/>
+          </Timeout>
+          <go_to_dock goal_number="1"/>
         </ReactiveFallback>
       </ReactiveSequence>
     </ReactiveSequence>
@@ -86,7 +81,7 @@
                editable="true"/>
     <Condition ID="on_table"
                editable="true"/>
-    <Condition ID="order_canceled"
+    <Condition ID="order_cancelled"
                editable="true"/>
     <Condition ID="order_confirmed"
                editable="true"/>

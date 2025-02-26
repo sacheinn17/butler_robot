@@ -19,7 +19,8 @@ find_package(tf2_ros REQUIRED)
 # find_package(<dependency> REQUIRED)
 add_executable(leaf_nodes
 #  "src/actions.cpp"
- "src/leaf_nodes.cpp")
+ "src/leaf_nodes.cpp"
+ "src/helper_functions.cpp")
 ament_target_dependencies(leaf_nodes rclcpp rclcpp_action rclcpp_components nav2_msgs tf2 tf2_ros)
 target_link_libraries(leaf_nodes behaviortree_cpp)
 
